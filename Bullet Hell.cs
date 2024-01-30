@@ -10,8 +10,6 @@ public class MyGame : Game {
     int shootIntervalMs = 100;
     bool gameStart;
 
-      Sound _music;
-
     Player player;
     EnemySpawner enemySpawner;
     TouhouHUD touhouHUD;
