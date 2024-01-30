@@ -1,0 +1,7 @@
+C:\Users\alice\Downloads\GXPEngine2023c\GXPEngine2023c\GXPEngine\obj\x86\Debug\Bullet Hell.csproj.AssemblyReference.cache
+C:\Users\alice\Downloads\GXPEngine2023c\GXPEngine2023c\GXPEngine\obj\x86\Debug\Bullet Hell.csproj.CoreCompileInputs.cache
+C:\Users\alice\Downloads\GXPEngine2023c\GXPEngine2023c\GXPEngine\obj\x86\Debug\GXPEngine.exe
+C:\Users\alice\Downloads\GXPEngine2023c\GXPEngine2023c\GXPEngine\obj\x86\Debug\GXPEngine.pdb
+C:\Users\alice\Downloads\GXPEngine2023c\GXPEngine2023c\GXPEngine\bin\Debug\GXPEngine.exe.config
+C:\Users\alice\Downloads\GXPEngine2023c\GXPEngine2023c\GXPEngine\bin\Debug\GXPEngine.exe
+C:\Users\alice\Downloads\GXPEngine2023c\GXPEngine2023c\GXPEngine\bin\Debug\GXPEngine.pdb
