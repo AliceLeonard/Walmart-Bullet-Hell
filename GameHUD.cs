@@ -135,7 +135,6 @@ public class TouhouHUD : GameObject
         _music = new Sound("music.mp3",false,true);
         _music.Play();
         Console.WriteLine();
-        hello;
     }
 
     private float Map(float value, float fromMin, float fromMax, float toMin, float toMax)
