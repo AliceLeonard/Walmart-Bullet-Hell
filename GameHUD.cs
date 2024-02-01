@@ -18,6 +18,9 @@ public class TouhouHUD : GameObject
     Sound _music;
     public List<Star> stars;
 
+
+    bool gameIntro = true;
+
     public TouhouHUD(Player player)
     {
         playerHealth = player.playerHealth;
@@ -25,6 +28,7 @@ public class TouhouHUD : GameObject
         playerBombs = 3; // Initial number of bombs
 
         hudBackground = new EasyDraw(game.width, 40);
+
         healthBar = new EasyDraw(game.width, game.height);
         scoreDisplay = new EasyDraw(200, 20);
         bombDisplay = new EasyDraw(40, 40);
@@ -132,9 +136,10 @@ public class TouhouHUD : GameObject
 
     void playMusic()
     {
-        _music = new Sound("music.mp3",false,true);
-        _music.Play();
+        _music = new Sound("music.ogg",false,true);
+        //wa_music.Play();
         Console.WriteLine();
+
     }
 
     private float Map(float value, float fromMin, float fromMax, float toMin, float toMax)

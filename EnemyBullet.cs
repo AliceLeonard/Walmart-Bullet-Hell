@@ -26,17 +26,17 @@ namespace GXPEngine
         public void Update()
         {
             // Move the bullet independently (modify as needed)
-            x--;
+            //x--;
 
-            //x += speed * Mathf.Cos(angle);
-            //y += speed * Mathf.Sin(angle);
+            x += speed * Mathf.Cos(angle);
+            y += speed * Mathf.Sin(angle);
 
             // Check if the bullet is off the screen, and remove it if needed
             if (x < 0+10 || x > playableArea.Width-10 || y > playableArea.Height-10 || y < 0+10)
             
             {
                 LateRemove();
-//Console.WriteLine("buillet removed");
+                //.WriteLine("buillet removed");
 
             }
         }

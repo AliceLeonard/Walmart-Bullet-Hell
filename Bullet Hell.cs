@@ -7,7 +7,7 @@ using System.Collections.Generic;                           // System.Drawing co
 
 public class MyGame : Game {
     int lastShootTime;
-    int shootIntervalMs = 100;
+    int shootIntervalMs = 150;
     bool gameStart;
 
     Player player;
@@ -27,6 +27,7 @@ public class MyGame : Game {
     bool gameStarted;
     MainMenu mainMenu;
 
+    Sound attack;
 
 
     public MyGame() : base(1200, 600, false, false)
@@ -54,33 +55,34 @@ public class MyGame : Game {
         Console.WriteLine("Start button clicked");
         gameStart = true;
 
+        // Remove the main menu
+        RemoveChild(startButton);
+        RemoveChild(exitButton);
+
         // Set up the background
         background = new EasyDraw(width, height);
-            AddChild(background);
-            background.Fill(0, 0, 0); // Black background
+        AddChild(background);
+        background.Fill(0, 0, 0); // Black background
 
-            // Set up the playable area
+        // Set up the playable area
+        playableArea = new PlayableArea(playableWidth, playableHeight, "Background.png");
+        SetXY((width - playableWidth) / 10, (height - playableHeight) / 2);
+        AddChild(playableArea);
 
+        // Set up the player
+        player = new Player();
+        AddChild(player);
 
-            playableArea = new PlayableArea(playableWidth, playableHeight, "Background.png");
-            SetXY((width - playableWidth) / 10, (height - playableHeight) / 2);
-            AddChild(playableArea);
+        // Set up the enemy spawner
+        enemySpawner = new EnemySpawner(this, playableArea);
+        AddChild(enemySpawner);
 
-            // Set up the player
-            player = new Player();
-            AddChild(player);
-
-            // Set up the enemy spawner
-            enemySpawner = new EnemySpawner(this, playableArea);
-            AddChild(enemySpawner);
-
-            // Set up the HUD
-            touhouHUD = new TouhouHUD(player);
-            AddChild(touhouHUD);
-            Start();
+        // Set up the HUD
+        touhouHUD = new TouhouHUD(player);
+        AddChild(touhouHUD);
+        Start();
 
         // Handle start button click
-        // Add code to start the game
         Console.WriteLine("Start button clicked");
         gameStart = true;
     }
@@ -109,16 +111,11 @@ public class MyGame : Game {
             Shoot();
             touhouHUD.SetPlayerHealth(player.playerHealth);
 
-
             if (player.playerAlive == false)
             {
                 Environment.Exit(0);
-
             }
-
-
         }
-
     }
 
     static void Main()                          // Main() is the first method that's called when the program is run
@@ -145,6 +142,7 @@ public class MyGame : Game {
             //Console.WriteLine("  " +  bulletSpawnX + " , " + bulletSpawnY + " & " + player.x + "," + player.y);
             // Add the bullet to the game or perform any other actions
             AddChild(bullet);
+            playAttack();
         }
 
         if (Input.GetMouseButtonUp(1))
@@ -152,8 +150,7 @@ public class MyGame : Game {
             PlayerBomb bomb = new PlayerBomb(bulletSpawnX, bulletSpawnY, playableArea);
             AddChild(bomb);
             Console.WriteLine("BOMB");
-             lateRemoveAllEnemies(this);
-
+            lateRemoveAllEnemies(this);
 
         }
     }
@@ -179,6 +176,13 @@ public class MyGame : Game {
                 lateRemoveAllEnemies(child);
             }
         }
+    }
+
+    void playAttack()
+    {
+        attack = new Sound("attack.wav", false, true);
+        //attack.Play();
+
     }
 
 }

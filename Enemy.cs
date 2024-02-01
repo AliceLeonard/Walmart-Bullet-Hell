@@ -33,8 +33,6 @@ public class Enemy : AnimationSprite
 
     public virtual void Update()
     {
-
-
         moveTimer++;
         if (moveTimer > 2)
         {
@@ -113,55 +111,6 @@ public class Enemy : AnimationSprite
         }
     }
 
-    void generateCircleOfBullets(int nr, int radius)
-    {
-        float angle = 0;
-        float delta_angle = Mathf.PI * 2.0f / (nr + 1);
-        for (int i = 0; i <= nr; i++)
-        {
-            float enemyBulletSpawnX = x + radius * Mathf.Cos(angle); // Spawn at the right side of the screen
-            float enemyBulletSpawnY = y + radius * Mathf.Sin(angle); // Adjust as needed
-
-            EnemyBullet enemybullet = new EnemyBullet(enemyBulletSpawnX, enemyBulletSpawnY, playableArea, angle);
-            game.AddChild(enemybullet);
-            angle += delta_angle;
-        }
-    }
-
-
-
-    void generateSpiralOfBullets(int nr, float radius)
-    {
-
-        float cx = x + width / 2;
-        float cy = y + height / 2;
-        float angle = 0;
-        float delta_angle = Mathf.PI * 2.0f / (nr + 1);
-        float length = radius / nr;
-
-        for (int i = 0; i <= nr; i++)
-        {
-            float enemyBulletSpawnX = cx + length * Mathf.Cos(angle);
-            float enemyBulletSpawnY = cy + length * Mathf.Sin(angle);
-
-            // Check if the spawn position is inside the playableArea
-            if (IsInsidePlayableArea(enemyBulletSpawnX, enemyBulletSpawnY))
-            {
-                EnemyBullet enemybullet = new EnemyBullet(enemyBulletSpawnX, enemyBulletSpawnY, playableArea, angle);
-                game.AddChild(enemybullet);
-            }
-            else
-            {
-                //debug
-                //Console.WriteLine("Bullet not spawned. Position outside playable area.");
-            }
-
-            angle += delta_angle;
-            length += radius / nr;
-
-        }
-    }
-
     void enemy1Shoot()
     {
         float enemyBulletSpawnX = x;
@@ -174,7 +123,6 @@ public class Enemy : AnimationSprite
 
 
     }
-
         bool IsInsidePlayableArea(float x, float y)
     {
         // Replace these values with the actual boundaries of the playable area

@@ -16,10 +16,11 @@ namespace GXPEngine
         int spawnTime;
         private Random random = new Random();
 
-        private int currentStage = 1;
+        private int currentStage = 4;
+        bool bossStage = false;
 
         float elapsedTime;
-        float interval = 5 * 1000; // we're using millisecond so *1000
+        float interval = 15 * 1000; // we're using millisecond so *1000
         bool timerReached = false;
 
         public EnemySpawner(GameObject enemyParent, PlayableArea playableArea)
@@ -74,12 +75,13 @@ namespace GXPEngine
                 enemy.SetXY(enemySpawnX, enemySpawnY);
                 AddChild(enemy);*/
 
-
             float enemySpawnX = playableArea.Width - 20; // Adjust as needed
             float enemySpawnY = (float)(random.NextDouble() * playableArea.Height);
 
             // Determine the enemy type based on the current stage
             Enemy enemy;
+            Boss boss;
+            //Console.WriteLine(random.Next(2));
 
 
 
@@ -93,9 +95,12 @@ namespace GXPEngine
                     break;
                 case 2:
                     // Mix of Enemy and Enemy2 for stage 2
-                    if (random.Next(2) == 1)
+                    if (random.Next(2) == 0)
                     {
                         enemy = new Enemy(enemySpawnX, enemySpawnY, 3, 3, playableArea);
+                        enemy.SetXY(enemySpawnX, enemySpawnY);
+                        AddChild(enemy);
+                        //Console.WriteLine("Spawned Enemy!");
                     }
                     else
                     {
@@ -104,13 +109,27 @@ namespace GXPEngine
                         enemy = new Enemy2(enemy2SpawnX, enemy2SpawnY, 3, 3, playableArea);
                         enemy.SetXY(enemy2SpawnX, enemy2SpawnY);
                         AddChild(enemy);
+                        //Console.WriteLine("Spawned Enemy2!");
                     }
                     break;
                 // Add cases for other stages as needed
                 case 3:
+                    enemy = new Enemy3(enemySpawnX, enemySpawnY, 5, 5, playableArea);
+                    enemy.SetXY(enemySpawnX, enemySpawnY);
+                    AddChild(enemy);
                     // ...
                     break;
                 case 4:
+                    if (bossStage == false)
+                    {
+                        float bossSpawnX = playableArea.Width / 2; // Spawns only in the right half
+                        float bossSpawnY = playableArea.Height / 2;
+                        boss = new Boss(bossSpawnX, bossSpawnY, 100, 10, playableArea);
+                        game.AddChild(boss);
+                        bossStage = true;
+
+                    }
+
                     // ...
                     break;
                 case 5:

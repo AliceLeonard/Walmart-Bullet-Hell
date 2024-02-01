@@ -26,7 +26,7 @@ namespace GXPEngine
 
         public override void enemyMove()
         {
-            y--;
+            x--;
            /* angle -= 0.1f;
             y = y + Mathf.Sin(angle) * radius;*/
         }
