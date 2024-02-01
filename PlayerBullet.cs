@@ -30,8 +30,7 @@ class PlayerBullet : Sprite
         if (x > playableArea.Width - 20 || x < 0)
         {
             LateRemove();
-/*            Console.WriteLine(" remove");
-*/        }
+        }
     }
 
 

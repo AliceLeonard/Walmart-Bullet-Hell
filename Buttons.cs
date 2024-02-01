@@ -15,15 +15,21 @@ namespace GXPEngine
 
         public Button(string text, int width, int height) : base(width, height)
         {
+            // Manually adjust text position for centering
+            float textX = (width - TextWidth(text)) / 2;
+            float textY = (height - TextHeight(text)) / 2;
+
             Fill(100, 100, 100); // Button color
             Stroke(0); // Border color
-            Rect(0, 0, width, height);
+            //Rect(0, 0, textX/2, textY/2);
 
             // Draw text in the center of the button
             Fill(255, 255, 255); // Text color
-            TextAlign(CenterMode.Center, CenterMode.Center);
-            TextFont(new Font("Arial", 18, FontStyle.Regular));
-            Text(text, width / 2, height / 2);
+            TextAlign(CenterMode.Min, CenterMode.Center);
+            TextFont(new Font("Arial", 18, System.Drawing.FontStyle.Regular));
+
+            Text(text, textX, textY);
+
         }
 
         public void Update()

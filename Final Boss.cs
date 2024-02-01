@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,13 +13,11 @@ namespace GXPEngine
     {
         private int health;
         private int currentStage;
-        private int totalStages;
         private PlayableArea playableArea;
         private bool isTransitioning;
+        public bool gameWin = false;
 
-        int stage1Positions = 1;
-        int pauseTime;
-        int bossStage = 1;
+        public int bossStage = 1;
         float moveSpeed;
 
         int bossHealth = 30;
@@ -36,21 +34,20 @@ namespace GXPEngine
 
         int bossShootTime;
         private int timer = 0;
-        private int shootTime = 10;
+        private int shootTime = 30;
         private int waveTime = 10;
 
 
 
 
 
-        public Boss(float x, float y, int health, int totalStages, PlayableArea playableArea)
-            : base("boss.png", 1, 1)
+        public Boss(float x, float y, int health, PlayableArea playableArea)
+            : base("boss.png", 1, 9)
         {
             SetOrigin(width / 2, height / 2);
             this.x = x;
             this.y = y;
             this.health = health;
-            this.totalStages = totalStages;
             this.playableArea = playableArea;
             this.currentStage = 1;
             this.isTransitioning = false;
@@ -58,6 +55,8 @@ namespace GXPEngine
 
         public void Update()
         {
+            Console.WriteLine(bossStage);
+
             if (!isTransitioning)
 
             {
@@ -65,7 +64,16 @@ namespace GXPEngine
                 PerformBossActions();
                 bossHealthUpdate();
             }
+
+            if (bossStage >= 4)
+            {
+                gameWin = true;
+                // Set gameWin before destroying the boss
+                //LateDestroy();
+            }
         }
+
+    
 
         private void MoveToNextStage()
         {
@@ -156,8 +164,6 @@ namespace GXPEngine
                     return playableArea.Width / 2;
                 case 2:
                     return playableArea.Width / 5 * 4;
-                // Implement logic to determine the target X position for the current stage
-                // Example: Return a fixed X position for each stage
                 case 3:
                     int randomXValue;
                     do
@@ -183,8 +189,6 @@ namespace GXPEngine
             switch (bossStage)
             {
                 case 1:
-                    // Implement logic to determine the target Y position for the current stage
-                    // Example: Return a fixed Y position for each stage
                     return playableArea.Height / 2;
                 case 2:
                     int randomValue;
@@ -273,7 +277,6 @@ namespace GXPEngine
         }
         void bossHealthUpdate()
         {
-            //Console.WriteLine(bossHealth);
             if (bossHealth <= 0)
             {
                 bossStage++;
@@ -281,10 +284,7 @@ namespace GXPEngine
                 bossMove = true;
             }
 
-            if (bossStage >= 4)
-            {
-                LateDestroy();
-            }
+           
         }
 
         private void CountdownTimer()
@@ -325,16 +325,15 @@ namespace GXPEngine
         }
         void generateSpiralOfBullets(int nr, float radius)
         {
-            float cx = x + width / 2;
-            float cy = y + height / 2;
+           
             float angle = 0;
             float delta_angle = Mathf.PI * 2.0f / (nr + 1);
             float length = radius / nr;
 
             for (int i = 0; i <= nr; i++)
             {
-                float enemyBulletSpawnX = cx + length * Mathf.Cos(angle);
-                float enemyBulletSpawnY = cy + length * Mathf.Sin(angle);
+                float enemyBulletSpawnX = x + length * Mathf.Cos(angle);
+                float enemyBulletSpawnY = y + length * Mathf.Sin(angle);
 
                 // Check if the spawn position is inside the playableArea
                 if (IsInsidePlayableArea(enemyBulletSpawnX, enemyBulletSpawnY))

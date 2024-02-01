@@ -1,162 +1,174 @@
-using System;                                   // System contains a lot of default C# libraries 
-using GXPEngine;                                // GXPEngine contains the engine
-using System.Drawing;
-using System.Collections;
-using System.Linq.Expressions;
-using System.Collections.Generic;                           // System.Drawing contains drawing tools such as Color definitions
+using GXPEngine;
+using System;
+using System.Collections.Generic;
 
-public class MyGame : Game {
+public class MyGame : Game
+{
     int lastShootTime;
     int shootIntervalMs = 150;
-    bool gameStart;
+    bool gameStart = false;
 
     Player player;
+    Boss boss;
     EnemySpawner enemySpawner;
     TouhouHUD touhouHUD;
-    EasyDraw canvas;
     EasyDraw background;
-    //EasyDraw playableArea;
     PlayableArea playableArea;
+    public bool gameWin = false;
 
-    public int playableWidth = 600;  // Set your desired width
-    public int playableHeight = 500; // Set your desired height
+    private EasyDraw winScreen;
+
+    public int playableWidth = 600;
+    public int playableHeight = 500;
 
     Button startButton;
+    Button restartButton;
     Button exitButton;
-
-    bool gameStarted;
-    MainMenu mainMenu;
 
     Sound attack;
 
+    enum GameState
+    {
+        MainMenu,
+        Playing,
+        RestartMenu
+    }
+
+    GameState gameState;
 
     public MyGame() : base(1200, 600, false, false)
     {
-            gameStarted = false;
-            mainMenu = new MainMenu();
-
-            startButton = new Button("Start", 100, 50);
-            startButton.SetXY(width/2, height / 2 - 150);
-            startButton.OnButtonClick += StartButton_OnButtonClick;
-            AddChild(startButton);
-
-            // Create exit button
-            exitButton = new Button("Exit", 100, 50);
-            exitButton.SetXY(width / 2, height / 2 +150);
-            exitButton.OnButtonClick += ExitButton_OnButtonClick;
-            AddChild(exitButton);
+        InitializeMainMenu();
+    }
+    static void Main()
+    {
+        new MyGame().Start();
     }
 
+    void InitializeMainMenu()
+    {
+        x = 0; y = 0;
+        gameState = GameState.MainMenu;
+
+        startButton = new Button("Start", 100, 50);
+        startButton.SetXY(width / 2, height / 2 - 150);
+        startButton.OnButtonClick += StartButton_OnButtonClick;
+        AddChild(startButton);
+
+        exitButton = new Button("Exit", 100, 50);
+        exitButton.SetXY(width / 2, height / 2 + 150);
+        exitButton.OnButtonClick += ExitButton_OnButtonClick;
+        AddChild(exitButton);
+    }
 
     void StartButton_OnButtonClick()
     {
-        // Handle start button click
-        // Add code to start the game
-        Console.WriteLine("Start button clicked");
+        gameState = GameState.Playing;
         gameStart = true;
 
-        // Remove the main menu
+        RemoveMainMenu();
+
+        SetupGame();
+    }
+
+    void RemoveMainMenu()
+    {
         RemoveChild(startButton);
         RemoveChild(exitButton);
+    }
 
-        // Set up the background
+    void SetupGame()
+    {
+
         background = new EasyDraw(width, height);
         AddChild(background);
         background.Fill(0, 0, 0); // Black background
 
-        // Set up the playable area
         playableArea = new PlayableArea(playableWidth, playableHeight, "Background.png");
         SetXY((width - playableWidth) / 10, (height - playableHeight) / 2);
         AddChild(playableArea);
 
-        // Set up the player
-        player = new Player();
+        player = new Player(playableArea);
         AddChild(player);
 
-        // Set up the enemy spawner
         enemySpawner = new EnemySpawner(this, playableArea);
         AddChild(enemySpawner);
 
-        // Set up the HUD
         touhouHUD = new TouhouHUD(player);
         AddChild(touhouHUD);
-        Start();
 
-        // Handle start button click
-        Console.WriteLine("Start button clicked");
+        gameState = GameState.Playing;
         gameStart = true;
+
+        LateAddChild(new RestartMenu(this));
+
+        // Other initialization code as needed
     }
-
-
-
-
 
     void ExitButton_OnButtonClick()
     {
-        // Handle exit button click
-        // Add code to exit the program
         Environment.Exit(0);
     }
 
-
-  
-    // For every game object, Update is called every frame, by the engine:
     void Update()
     {
-        mainMenu.Update();
-        if (gameStart == true)
+        if (gameState == GameState.Playing)
         {
+            // Update and draw other game elements
+            touhouHUD.UpdateHUD();
             touhouHUD.UpdateHealthBar(player.playerHealth);
-            //  enemy.spawnEnemy();
+            touhouHUD.UpdatePlayerBomb(touhouHUD.playerBombs);
             Shoot();
             touhouHUD.SetPlayerHealth(player.playerHealth);
+            CheckBossWin(); // Add this line
+            WinGameCheck();
 
             if (player.playerAlive == false)
             {
-                Environment.Exit(0);
+                gameState = GameState.RestartMenu;
+                // Remove all existing children
+                foreach (var child in GetChildren())
+                {
+                    RemoveChild(child);
+                }
+                ResetGame();
+            }
+            else if (gameState == GameState.RestartMenu)
+            {
+                if (Input.GetMouseButton(0) && restartButton.HitTestPoint(Input.mouseX, Input.mouseY))
+                {
+                    ResetGame();
+                }
             }
         }
     }
 
-    static void Main()                          // Main() is the first method that's called when the program is run
-    {
-        new MyGame().Start();                   // Create a "MyGame" and start it
-    }
-
-
     public void Shoot()
     {
-        // Create and spawn a PlayerBullet in front of the player
-        float bulletSpawnX = player.x + player.width; // Adjust as needed
-        float bulletSpawnY = player.y + player.height / 2; // Adjust as needed
+        float bulletSpawnX = player.x + player.width;
+        float bulletSpawnY = player.y + player.height / 2;
 
-        // Check for shooting action, for example, when Space key is pressed
         if (Input.GetMouseButton(0) && (Time.now - lastShootTime) > shootIntervalMs)
         {
             lastShootTime = Time.now;
 
-
             PlayerBullet bullet = new PlayerBullet(bulletSpawnX, bulletSpawnY, playableArea);
-            bullet.scaleX = scaleX; // Inherit the player's orientation
-
-            //Console.WriteLine("  " +  bulletSpawnX + " , " + bulletSpawnY + " & " + player.x + "," + player.y);
-            // Add the bullet to the game or perform any other actions
+            bullet.scaleX = scaleX;
             AddChild(bullet);
             playAttack();
         }
 
-        if (Input.GetMouseButtonUp(1))
+        if (Input.GetMouseButtonUp(1) && touhouHUD.playerBombs > 0)
         {
-            PlayerBomb bomb = new PlayerBomb(bulletSpawnX, bulletSpawnY, playableArea);
-            AddChild(bomb);
+            //PlayerBomb bomb = new PlayerBomb(bulletSpawnX, bulletSpawnY, playableArea);
+            //AddChild(bomb);
             Console.WriteLine("BOMB");
+            touhouHUD.UseBomb();
             lateRemoveAllEnemies(this);
-
         }
     }
-    
 
-    void lateRemoveAllEnemies( GameObject obj )
+    void lateRemoveAllEnemies(GameObject obj)
     {
         List<GameObject> children = obj.GetChildren();
         foreach (GameObject child in children)
@@ -166,12 +178,12 @@ public class MyGame : Game {
                 Enemy enemy = child as Enemy;
                 enemy.enemyHealth--;
                 Console.WriteLine("Object processed: " + child);
-                
-            } else if (child is EnemyBullet)
+            }
+            else if (child is EnemyBullet)
             {
                 child.LateRemove();
-
-            } else
+            }
+            else
             {
                 lateRemoveAllEnemies(child);
             }
@@ -181,9 +193,59 @@ public class MyGame : Game {
     void playAttack()
     {
         attack = new Sound("attack.wav", false, true);
-        //attack.Play();
+    }
+
+    void ResetGame()
+    {
+        x = 0; y = 0;
+        gameState = GameState.MainMenu;
+
+        startButton = new Button("Restart?", 100, 50);
+        startButton.SetXY(width / 2, height / 2 - 150);
+        startButton.OnButtonClick += StartButton_OnButtonClick;
+        AddChild(startButton);
+
+        exitButton = new Button("Exit", 100, 50);
+        exitButton.SetXY(width / 2, height / 2 + 150);
+        exitButton.OnButtonClick += ExitButton_OnButtonClick;
+        AddChild(exitButton);
 
     }
 
+
+    void CheckBossWin()
+    {
+        // If the boss is not instantiated, create an instance for the check
+        if (boss == null)
+        {
+            boss = new Boss(x, y, 30, playableArea);
+        }
+    }
+
+
+    void WinGameCheck()
+    {
+        if (boss.gameWin)
+        {
+            Console.WriteLine("WINNNNNNNNNNNNNNNNNNNN");
+
+            foreach (var child in GetChildren())
+            {
+                RemoveChild(child);
+            }
+
+            x = 0; y = 0;
+            gameState = GameState.MainMenu;
+
+            winScreen = new EasyDraw(width, height);
+            AddChild(winScreen);
+            winScreen.Text("VICTORY!:", game.width / 2, game.height / 10); // Display a "B" for bombs
+
+            exitButton = new Button("Exit", 100, 50);
+            exitButton.SetXY(width / 2, height / 2 + 150);
+            exitButton.OnButtonClick += ExitButton_OnButtonClick;
+            AddChild(exitButton);
+        }
+    }
 }
 

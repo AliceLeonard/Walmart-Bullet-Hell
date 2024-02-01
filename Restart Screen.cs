@@ -1,38 +1,39 @@
-﻿using GXPEngine;
-using GXPEngine.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace GXPEngine
 {
-    public class MainMenu
+    public class RestartMenu : GameObject
     {
+        private Game game;
         private Button startButton;
         private Button exitButton;
         private GameObject[] children;
         private int childCount;
 
-        public MainMenu()
+        public RestartMenu(Game game) : base()
         {
             children = new GameObject[10]; // Adjust the size based on your needs
+            this.game = game;
             childCount = 0;
 
-            CreateMainMenu();
+            CreateRestartMenu();
+            this.game = game;
         }
 
-        void CreateMainMenu()
+        void CreateRestartMenu()
         {
             // Set up the background
-            EasyDraw background = new EasyDraw(800, 600);
-            background.Fill(255, 255, 255); // White background
+            EasyDraw background = new EasyDraw(game.width, game.height);
+            background.Fill(0, 0, 0);
+            background.Rect(0, 0, game.width, game.height);
             AddChild(background);
 
             // Create Start button
-            startButton = new Button("Start", 200, 100);
+            startButton = new Button("Restart", 200, 100);
             startButton.SetXY((800 - startButton.width) / 2, 600 / 3);
             startButton.OnButtonClick += StartButtonClick;
             AddChild(startButton);
@@ -42,6 +43,7 @@ namespace GXPEngine
             exitButton.SetXY((800 - exitButton.width) / 2, 2 * 600 / 3);
             exitButton.OnButtonClick += ExitButtonClick;
             AddChild(exitButton);
+
         }
 
         void StartButtonClick()
@@ -77,3 +79,4 @@ namespace GXPEngine
         }
     }
 }
+

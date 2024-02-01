@@ -12,15 +12,18 @@ using TiledMapParser;
 public class Enemy : AnimationSprite
 {
     int moveTimer;
-    float radius = 10;
-    float angle = 90;
+  
     public int enemyHealth;
+    public int enemyShootTimer = 0;
     public int enemyShootTime;
     private PlayableArea playableArea;
+    private EnemySpawner spawner;
 
 
-    public Enemy(float x, float y, int enemyHealth, int enemyShootTime, PlayableArea playableArea) : base("character_run.png", 1, 8)
+
+    public Enemy(float x, float y, int enemyHealth, int enemyShootTime, PlayableArea playableArea) : base("enemy.png", 1, 8)
     {
+        SetOrigin(width / 2, height / 2);
         this.x = x;
         this.y = y;
         this.enemyHealth = enemyHealth;
@@ -40,7 +43,7 @@ public class Enemy : AnimationSprite
             enemyMove();
         }
         healthUpdate();
-        enemyShoot();
+        enemyShootTimeUpdate();
         IsOutsidePlayableArea();
     }
 
@@ -68,71 +71,51 @@ public class Enemy : AnimationSprite
     public virtual void enemyMove()
     {
         x--;
-
-        /*        angle -= 0.1f;
-                y = y + Mathf.Sin(angle) * radius;*/
     }
 
 
     public virtual void OnCollision(GameObject other)
     // had to use public virtual, or else bullet won't work
     {
-        if (other is PlayerBullet)
+        if (other is PlayerBullet) 
         {
-            //LateRemove();
-            //enemyCount--;
             enemyHealth--;
             Console.WriteLine("Enemy hit! Remaining health: " + enemyHealth);
         }
+
+        if (other is Player)
+        {
+            LateRemove();
+        }
     }
 
-    void healthUpdate()
+    public virtual void healthUpdate()
     {
         if (enemyHealth <= 0)
         {
             LateRemove();
-            //Console.WriteLine(enemyHealth);
+        }
+    }
+
+    public virtual void enemyShootTimeUpdate()
+    {
+     
+            enemyShootTimer++;
+
+        if (enemyShootTimer == enemyShootTime)
+        {
+            enemyShoot();
+            enemyShootTimer = 0; // Set a fixed cooldown time
+            //generateSpiralOfBullets(12, 50);
         }
     }
 
     public virtual void enemyShoot()
     {
-        if (enemyShootTime > 0)
-        {
-            enemyShootTime--;
-        }
-
-        if (enemyShootTime == 0)
-        {
-            enemyShootTime = 200; // Set a fixed cooldown time
-            enemy1Shoot();
-
-            //generateSpiralOfBullets(12, 50);
-        }
-    }
-
-    void enemy1Shoot()
-    {
-        float enemyBulletSpawnX = x;
-        float enemyBulletSpawnY = y + width / 2;
-        if (IsInsidePlayableArea(enemyBulletSpawnX, enemyBulletSpawnY))
-        {
-            EnemyBullet enemybullet = new EnemyBullet(enemyBulletSpawnX, enemyBulletSpawnY, playableArea, angle);
-            game.AddChild(enemybullet);
-        }
-
-
-    }
-        bool IsInsidePlayableArea(float x, float y)
-    {
-        // Replace these values with the actual boundaries of the playable area
-        float playableLeft = playableArea.x;
-        float playableRight = playableArea.x + playableArea.Width;
-        float playableTop = playableArea.y;
-        float playableBottom = playableArea.y + playableArea.Height;
-
-        // Check if the position is inside the playable area
-        return x >= playableLeft && x <= playableRight &&
-               y >= playableTop && y <= playableBottom;
+        float enemyBulletSpawnX = x - width;
+        float enemyBulletSpawnY = y + height / 4;
+       
+        EnemyBulletSimple enemybullet = new EnemyBulletSimple(enemyBulletSpawnX, enemyBulletSpawnY, playableArea);
+        game.AddChild(enemybullet);
     }
 }

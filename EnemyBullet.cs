@@ -9,11 +9,11 @@ namespace GXPEngine
 {
     class EnemyBullet : Sprite
     {
-        float speed = 3;
+        public float speed = 3;
         float angle;
         private PlayableArea playableArea;
 
-        public EnemyBullet(float x, float y, PlayableArea playableArea, float angle = 180) : base("bullet.png")
+        public EnemyBullet(float x, float y, PlayableArea playableArea, float angle = 180) : base("enemybullet.png")
         {
             SetOrigin(width / 2, height / 2); // Set the origin to the center of the bullet
             SetXY(x, y);
@@ -23,11 +23,8 @@ namespace GXPEngine
             this.playableArea = playableArea;
         }
 
-        public void Update()
+        public virtual void Update()
         {
-            // Move the bullet independently (modify as needed)
-            //x--;
-
             x += speed * Mathf.Cos(angle);
             y += speed * Mathf.Sin(angle);
 
@@ -36,21 +33,16 @@ namespace GXPEngine
             
             {
                 LateRemove();
-                //.WriteLine("buillet removed");
-
             }
         }
 
 
-        void OnCollision(GameObject other)
+        public virtual void OnCollision(GameObject other)
         {
             if (other is Player)
             {
                 LateRemove();
             }
-
         }
-
-
     }
 }

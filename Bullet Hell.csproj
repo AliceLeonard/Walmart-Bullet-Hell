@@ -41,19 +41,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Background.cs" />
     <Compile Include="Buttons.cs" />
+    <Compile Include="EnemyBulletSimple.cs" />
     <Compile Include="Final Boss.cs" />
-    <Compile Include="Main Menu.cs" />
-    <Compile Include="Enemy3.cs" />
-    <Compile Include="EnemyBulletSpawner.cs" />
+    <Compile Include="Restart Screen.cs" />
+    <Compile Include="TrackingEnemy.cs" />
     <Compile Include="GameHUD.cs" />
     <Compile Include="Hud.cs" />
     <Compile Include="PlayableArea.cs" />
     <Compile Include="PlayerBomb.cs" />
     <Compile Include="Star.cs" />
     <Compile Include="EnemyBullet.cs" />
-    <Compile Include="Enemy2.cs" />
+    <Compile Include="CircleEnemy.cs" />
     <Compile Include="EnemySpawner.cs" />
     <Compile Include="PlayerBullet.cs" />
     <Compile Include="Enemy.cs" />

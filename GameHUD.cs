@@ -8,78 +8,84 @@ public class TouhouHUD : GameObject
 {
     private int playerHealth;
     private int playerScore;
-    private int playerBombs;
+    public int playerBombs;
 
     private EasyDraw hudBackground;
     private EasyDraw healthBar;
     private EasyDraw scoreDisplay;
     private EasyDraw bombDisplay;
 
+    private EasyDraw healthLabel;
+    private EasyDraw bombLabel;
+
     Sound _music;
     public List<Star> stars;
-
+    public List<Star> starbombs;
 
     bool gameIntro = true;
+    int bombReload;
+    int bombReloadTimer = 500;
+
 
     public TouhouHUD(Player player)
     {
         playerHealth = player.playerHealth;
         playerScore = 0;
-        playerBombs = 3; // Initial number of bombs
+        playerBombs = 5; // Initial number of bombs
+
+
 
         hudBackground = new EasyDraw(game.width, 40);
-
         healthBar = new EasyDraw(game.width, game.height);
         scoreDisplay = new EasyDraw(200, 20);
-        bombDisplay = new EasyDraw(40, 40);
+        bombDisplay = new EasyDraw(game.width, game.height);
 
         AddChild(hudBackground);
         AddChild(healthBar);
         AddChild(scoreDisplay);
         AddChild(bombDisplay);
 
+        healthLabel = new EasyDraw(200, 20);
+        bombLabel = new EasyDraw(200, 20);
+        AddChild(healthLabel);
+        AddChild(bombLabel);
+
+
+
         stars = new List<Star>();
+        starbombs = new List <Star>();
         CreateHealthStars(10);
+        CreateBombStars(5);
         playMusic();
         UpdateHUD();
     }
 
     public void UpdateHUD()
     {
+        reloadingBomb();
         UpdateHealthBar(playerHealth);
         UpdateScoreDisplay();
         UpdateBombDisplay();
-   
+        UpdatePlayerBomb(5);
     }
 
-   /* public void UpdateHealthBar()
-    {
-        float barWidth = Map(playerHealth, 0, 10, 0, 200);
-        float x = game.width/4*3; // Set your desired x-coordinate
-        float y = game.height/8; // Set your desired y-coordinate
 
-        healthBar.Clear(Color.Transparent);
-        healthBar.Fill(255, 0, 0);
-        healthBar.Rect(x, y, barWidth, 20);
-        
-        Console.WriteLine(playerHealth);
-        //Console.WriteLine("Health Bar Coordinates: x = " + x + ", y = " + y);
 
-    }*/
-
-    private void UpdateScoreDisplay()
+private void UpdateScoreDisplay()
     {
         scoreDisplay.Clear(Color.Transparent);
         scoreDisplay.Fill(255);
-        scoreDisplay.Text("Score: " + playerScore, game.width/4*2, game.height/8);
+        scoreDisplay.Text("Score: " + playerScore, game.width / 4 * 2, game.height / 8);
     }
 
     private void UpdateBombDisplay()
     {
         bombDisplay.Clear(Color.Transparent);
-        bombDisplay.Fill(255, 255, 0); // Yellow color for bombs
-        bombDisplay.Text("B", 0, 0); // Display a "B" for bombs
-        bombDisplay.Text(playerBombs.ToString(), 15, 20); // Display bomb count
+        bombDisplay.Fill(255, 255, 255); // Yellow color for bombs
+        bombDisplay.Text("Bombs:", game.width / 4 * 2 + 30, game.height / 5 * 2 - 30); // Display a "B" for bombs
+        bombDisplay.Text("Health:", game.width / 4 * 2 + 30, game.height / 5 - 10); // Display a "B" for bombs
+
+
     }
 
     public void IncreaseScore(int points)
@@ -93,8 +99,6 @@ public class TouhouHUD : GameObject
         if (playerBombs > 0)
         {
             playerBombs--;
-            UpdateBombDisplay();
-            // Implement bomb effect logic here
         }
     }
 
@@ -106,20 +110,30 @@ public class TouhouHUD : GameObject
 
     public void CreateHealthStars(int initialHealth)
     {
-        int starSpacing = 50;  // Adjust the spacing value as needed - really should use width but can't
+        int starSpacing = 50; // Adjust the spacing value as needed
 
         for (int i = 0; i < initialHealth; i++)
         {
-            Star star = new Star(game.width / 4 * 2 + 100 + (i * starSpacing), game.height / 5);
+            Star star = new Star(game.width / 4 * 2 + 30 + (i * starSpacing), game.height / 5);
             stars.Add(star);
             AddChild(star);
         }
     }
 
+    public void CreateBombStars(int initialBombs)
+    {
+        int starSpacing = 50; // Adjust the spacing value as needed
+
+        for (int i = 0; i < initialBombs; i++)
+        {
+            Star starbomb = new Star(game.width / 4 * 2 + 30 + (i * starSpacing), game.height / 5 * 2);
+            starbombs.Add(starbomb);
+            AddChild(starbomb);
+        }
+    }
 
     public void UpdateHealthBar(int playerhealth)
     {
-        
         if (playerHealth < stars.Count)
         {
             // Remove stars beyond the current health
@@ -129,18 +143,64 @@ public class TouhouHUD : GameObject
                 Star star = stars[stars.Count - 1];
                 star.LateRemove();
                 stars.RemoveAt(stars.Count - 1);
-                Console.WriteLine(stars.Count);
             }
         }
+        else if (playerHealth == 0)
+        {
+            // Handle other conditions if needed
+        }
+    }
+
+    public void UpdatePlayerBomb(int playerBombs)
+    {
+        if (playerBombs < starbombs.Count)
+        {
+            // Remove stars beyond the current bomb count
+            int starsToRemove = starbombs.Count - playerBombs;
+            for (int i = 0; i < starsToRemove; i++)
+            {
+                Star star = starbombs[starbombs.Count - 1];
+                star.LateRemove();
+                starbombs.RemoveAt(starbombs.Count - 1);
+            }
+        }
+        else if (playerBombs > starbombs.Count)
+        {
+            // Add stars for additional bombs
+            int starsToAdd = playerBombs - starbombs.Count;
+            for (int i = 0; i < starsToAdd; i++)
+            {
+                Star star = new Star(game.width / 4 * 2 + 30 + ((starbombs.Count + i) * 50), game.height / 5 * 2);
+                starbombs.Add(star);
+                AddChild(star);
+            }
+        }
+        // Handle other conditions if needed
+    }
+
+    void reloadingBomb()
+    {
+        if (playerBombs <= 4)
+        {
+            bombReload++;
+
+            if (bombReload == bombReloadTimer)
+            {
+                playerBombs++;
+                bombReload = 0;
+
+            }
+        }
+      
     }
 
     void playMusic()
     {
-        _music = new Sound("music.ogg",false,true);
-        //wa_music.Play();
-        Console.WriteLine();
-
+        _music = new Sound("music.ogg", false, true);
+        //_music.Play();
     }
+
+
 
     private float Map(float value, float fromMin, float fromMax, float toMin, float toMax)
     {
