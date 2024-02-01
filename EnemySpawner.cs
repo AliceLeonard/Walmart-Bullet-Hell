@@ -15,18 +15,16 @@ namespace GXPEngine
         private Enemy enemy;
 
 
-        private int spawnTimer = 100;
+        private int spawnTimer = 80;
         private int spawnTime;
         private Random random = new Random();
-        private int currentStage = 5;
+        private int currentStage = 1;
         private bool bossStage = false;
         private float elapsedTime;
-        private float interval = 10 * 1000;
+        private float interval = 30 * 1000;
 
         private EnemyConfig[] enemyConfigs; // Array to store configurations for different enemy types
 
-        int maxEnemyCount;
-        int currentEnemyCount;
 
         public EnemySpawner(GameObject enemyParent, PlayableArea playableArea)
         {
@@ -39,7 +37,7 @@ namespace GXPEngine
 
         private void InitializeEnemyConfigs()
         {
-            spawnTimer = 75;
+            spawnTimer = 60;
 
             // Define configurations for different enemy types
             enemyConfigs = new EnemyConfig[]
@@ -50,16 +48,15 @@ namespace GXPEngine
             // Basic Enemies!
             //Change their health and attack delay!
 
-            new EnemyConfig("CircleEnemy", 2, 10, 10, 50),
+            new EnemyConfig("CircleEnemy", 3, 70, 10, 15),
             //Circle of bullets enemies!
             //Change their health, attack delay, bullets in the circle, radius of the circle!
 
-
-            new EnemyConfig("TrackingEnemy", 3, 30),
+            new EnemyConfig("TrackingEnemy", 2, 40),
             //Enemy that shoots at where you are!
             //Change their health and attack delay!
 
-            new EnemyConfig("Boss",30, 10),
+            new EnemyConfig("Boss",100, 10),
             };
         }
 
@@ -87,6 +84,7 @@ namespace GXPEngine
 
         public void Update()
         {
+
             //Console.WriteLine(currentStage);
             timerChange();
             gameStage();
@@ -95,8 +93,6 @@ namespace GXPEngine
             {
                 spawnEnemy();
                 spawnTime = 0;
-
-               
             }
         }
 
@@ -113,10 +109,6 @@ namespace GXPEngine
                     // Increment the current stage
                     currentStage++;
 
-
-                    // Additional actions you want to perform when the interval is reached
-                    Console.WriteLine($"Timer reached! Current Stage: {currentStage}");
-
                     // Adjust elapsedTime to keep track of the remaining time
                     elapsedTime %= interval;
                 }
@@ -130,7 +122,6 @@ namespace GXPEngine
 
         public void spawnEnemy()
         {
-
             // If the boss has already been spawned, do not spawn any more enemies
             if (bossSpawned)
             {
@@ -138,7 +129,7 @@ namespace GXPEngine
             }
 
             float enemySpawnX = playableArea.Width - 50;
-            float enemySpawnY = (float)(random.NextDouble() * (playableArea.Height - 50));
+            float enemySpawnY = (float)(random.NextDouble() * (playableArea.Height + 50));
 
             // Determine the enemy type based on the current stage
             string enemyType = GetEnemyType();
@@ -147,7 +138,7 @@ namespace GXPEngine
             EnemyConfig selectedConfig = enemyConfigs.FirstOrDefault(config => config.Type == enemyType);
 
             // If a valid configuration is found, spawn the enemy
-            if (selectedConfig != null)
+            if (selectedConfig != null && IsInsidePlayableArea(enemySpawnX, enemySpawnY) && currentStage <= 4)
             {
                 switch (enemyType)
                 {
@@ -163,7 +154,11 @@ namespace GXPEngine
                         trackingEnemy.SetXY(enemySpawnX, enemySpawnY);
                         AddChild(trackingEnemy);
                         break;
+                        
                     default:
+                        Enemy Enemy = new Enemy(enemySpawnX, enemySpawnY, selectedConfig.Health, selectedConfig.Damage, playableArea);
+                        Enemy.SetXY(enemySpawnX, enemySpawnY);
+                        AddChild(Enemy);
                         break;
                 }
             }
@@ -179,7 +174,18 @@ namespace GXPEngine
 
         }
 
+        public bool IsInsidePlayableArea(float x, float y)
+        {
+            float playableLeft = 0;
+            float playableRight = playableArea.Width;
+            float playableTop = 0;
+            float playableBottom = playableArea.Height - 50;
 
+            return x >= playableLeft && x <= playableRight &&
+                   y >= playableTop && y <= playableBottom;
+        }
+
+        
 
         private class EnemyConfig
         {

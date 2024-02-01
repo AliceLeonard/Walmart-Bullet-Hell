@@ -13,34 +13,35 @@ public class Player : AnimationSprite
     public Boolean playerAlive = true;
     private PlayableArea playableArea;
 
+    int healthReload;
+    int healthReloadTimer = 750;
+
+    Sound damage;
+    Sound heal;
 
     public Player(PlayableArea playableArea) : base("character_run.png", 1, 8)
     {
         this.playableArea = playableArea;
         scale = 1;
-        //SetOrigin(width / 2, height / 2); // Set the origin to the center of the png
-
     }
 
     void Update()
     {
+        reloadingHealth();
         counter++;
         if (counter > 10)
         {
             counter = 10;
             frame++;
-            if (frame == frameCount)
+            if (frame == frameCount) //animation stuff
             {
                 frame = 0;
             }
-
             SetCycle(1, 8);
             Animate(0.08f);
         }
-
         MoveCharacter();
         playerHealthUpdate();
-
     }
 
     void MoveCharacter()
@@ -66,11 +67,6 @@ public class Player : AnimationSprite
         }
     }
 
-
-
-
-
-
     void playerHealthUpdate()
     {
         if (playerHealth <= 0)
@@ -80,14 +76,29 @@ public class Player : AnimationSprite
         }
     }
 
-
     void OnCollision(GameObject other)
     {
-        if (other is EnemyBullet || other is Enemy)
+        if (other is EnemyBullet || other is Enemy || other is Boss)
         {
-            //playerHealth--;
-            //touhouHUD.SetPlayerHealth(playerHealth);
-            Console.WriteLine(" hit " + playerHealth);
+            playerHealth--;
+            damage = new Sound("damage.wav", false, false);
+            damage.Play();
+
+        }
+    }
+
+    void reloadingHealth()
+    {
+        if (playerHealth <= 9)
+        {
+            healthReload++;
+            if (healthReload == healthReloadTimer)
+            {
+                playerHealth++;
+                heal = new Sound("heal.wav", false, false);
+                heal.Play();
+                healthReload = 0;
+            }
         }
     }
 
@@ -103,9 +114,4 @@ public class Player : AnimationSprite
         return x >= playableLeft && x <= playableRight &&
                y >= playableTop && y <= playableBottom;
     }
-
-
-
-
-
 }

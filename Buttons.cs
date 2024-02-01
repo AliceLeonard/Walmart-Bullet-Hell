@@ -19,17 +19,12 @@ namespace GXPEngine
             float textX = (width - TextWidth(text)) / 2;
             float textY = (height - TextHeight(text)) / 2;
 
-            Fill(100, 100, 100); // Button color
-            Stroke(0); // Border color
-            //Rect(0, 0, textX/2, textY/2);
-
             // Draw text in the center of the button
             Fill(255, 255, 255); // Text color
             TextAlign(CenterMode.Min, CenterMode.Center);
             TextFont(new Font("Arial", 18, System.Drawing.FontStyle.Regular));
 
             Text(text, textX, textY);
-
         }
 
         public void Update()

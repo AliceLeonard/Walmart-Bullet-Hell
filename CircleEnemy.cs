@@ -11,9 +11,10 @@ namespace GXPEngine
     {
         int radius;
         int nr;
-        int timer;
+       
         private EnemySpawner enemySpawner;
         private PlayableArea playableArea;
+
         private int cEnemyShootTime;
         private int cEnemyShootTimer;
 
@@ -24,8 +25,6 @@ namespace GXPEngine
             this.enemyHealth = enemyHealth;
             this.enemyShootTime = enemyShootTime;
             this.playableArea = playableArea;
-            // SetXY(x, y);  // This line is not needed, as the base constructor already sets the position
-            // Set a specific image for WaveEnemy if needed
         }
 
         public override void Update()
@@ -37,7 +36,7 @@ namespace GXPEngine
             if (cEnemyShootTimer == enemyShootTime)
             {
                 generateCircleOfBullets(nr, radius);
-                cEnemyShootTime = 0;
+                cEnemyShootTimer = 0;
                 //azzyGenerateSpiralOfBullets(12, 50, timer / shootTime / 14 * Mathf.PI);
             }
             if (x < 0)
@@ -49,9 +48,6 @@ namespace GXPEngine
             {
                 LateRemove();
             }
-
-            // Update logic specific to wave enemy
-            // Add any other specific behavior for WaveEnemy
         }
 
 
@@ -84,7 +80,6 @@ namespace GXPEngine
 
         public bool IsInsidePlayableArea(float x, float y)
         {
-            // Replace these values with the actual boundaries of the playable area
             float playableLeft = 0;
             float playableRight = playableArea.Width;
             float playableTop = 0;
@@ -94,8 +89,5 @@ namespace GXPEngine
             return x >= playableLeft && x <= playableRight &&
                    y >= playableTop && y <= playableBottom;
         }
-
-
-
     }
 }

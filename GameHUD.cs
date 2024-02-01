@@ -1,8 +1,6 @@
 ﻿using GXPEngine;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
-using TiledMapParser;
 
 public class TouhouHUD : GameObject
 {
@@ -18,22 +16,19 @@ public class TouhouHUD : GameObject
     private EasyDraw healthLabel;
     private EasyDraw bombLabel;
 
-    Sound _music;
     public List<Star> stars;
     public List<Star> starbombs;
 
-    bool gameIntro = true;
     int bombReload;
     int bombReloadTimer = 500;
 
+    Sound reload;
 
     public TouhouHUD(Player player)
     {
         playerHealth = player.playerHealth;
         playerScore = 0;
         playerBombs = 5; // Initial number of bombs
-
-
 
         hudBackground = new EasyDraw(game.width, 40);
         healthBar = new EasyDraw(game.width, game.height);
@@ -50,13 +45,11 @@ public class TouhouHUD : GameObject
         AddChild(healthLabel);
         AddChild(bombLabel);
 
-
-
         stars = new List<Star>();
-        starbombs = new List <Star>();
+        starbombs = new List<Star>();
         CreateHealthStars(10);
         CreateBombStars(5);
-        playMusic();
+
         UpdateHUD();
     }
 
@@ -64,34 +57,15 @@ public class TouhouHUD : GameObject
     {
         reloadingBomb();
         UpdateHealthBar(playerHealth);
-        UpdateScoreDisplay();
         UpdateBombDisplay();
         UpdatePlayerBomb(5);
     }
-
-
-
-private void UpdateScoreDisplay()
-    {
-        scoreDisplay.Clear(Color.Transparent);
-        scoreDisplay.Fill(255);
-        scoreDisplay.Text("Score: " + playerScore, game.width / 4 * 2, game.height / 8);
-    }
-
     private void UpdateBombDisplay()
     {
         bombDisplay.Clear(Color.Transparent);
         bombDisplay.Fill(255, 255, 255); // Yellow color for bombs
         bombDisplay.Text("Bombs:", game.width / 4 * 2 + 30, game.height / 5 * 2 - 30); // Display a "B" for bombs
         bombDisplay.Text("Health:", game.width / 4 * 2 + 30, game.height / 5 - 10); // Display a "B" for bombs
-
-
-    }
-
-    public void IncreaseScore(int points)
-    {
-        playerScore += points;
-        UpdateScoreDisplay();
     }
 
     public void UseBomb()
@@ -114,7 +88,7 @@ private void UpdateScoreDisplay()
 
         for (int i = 0; i < initialHealth; i++)
         {
-            Star star = new Star(game.width / 4 * 2 + 30 + (i * starSpacing), game.height / 5);
+            Star star = new Star(game.width / 4 * 2 + 30 + (i * starSpacing), game.height / 5, "red star.png");
             stars.Add(star);
             AddChild(star);
         }
@@ -126,7 +100,7 @@ private void UpdateScoreDisplay()
 
         for (int i = 0; i < initialBombs; i++)
         {
-            Star starbomb = new Star(game.width / 4 * 2 + 30 + (i * starSpacing), game.height / 5 * 2);
+            Star starbomb = new Star(game.width / 4 * 2 + 30 + (i * starSpacing), game.height / 5 * 2, "blue star.png");
             starbombs.Add(starbomb);
             AddChild(starbomb);
         }
@@ -145,9 +119,16 @@ private void UpdateScoreDisplay()
                 stars.RemoveAt(stars.Count - 1);
             }
         }
-        else if (playerHealth == 0)
-        {
-            // Handle other conditions if needed
+        else if (playerhealth > stars.Count)
+        {  
+            // Add stars for additional bombs
+            int starsToAdd = playerHealth - stars.Count;
+            for (int i = 0; i < starsToAdd; i++)
+            {
+                Star star = new Star(game.width / 4 * 2 + 30 + ((stars.Count + i) * 50), game.height / 5, "red star.png");
+                stars.Add(star);
+                AddChild(star);
+            }
         }
     }
 
@@ -170,12 +151,11 @@ private void UpdateScoreDisplay()
             int starsToAdd = playerBombs - starbombs.Count;
             for (int i = 0; i < starsToAdd; i++)
             {
-                Star star = new Star(game.width / 4 * 2 + 30 + ((starbombs.Count + i) * 50), game.height / 5 * 2);
+                Star star = new Star(game.width / 4 * 2 + 30 + ((starbombs.Count + i) * 50), game.height / 5 * 2, "blue star.png");
                 starbombs.Add(star);
                 AddChild(star);
             }
         }
-        // Handle other conditions if needed
     }
 
     void reloadingBomb()
@@ -183,27 +163,14 @@ private void UpdateScoreDisplay()
         if (playerBombs <= 4)
         {
             bombReload++;
-
             if (bombReload == bombReloadTimer)
             {
                 playerBombs++;
                 bombReload = 0;
 
+                reload = new Sound("reload.wav", false, false);
+                reload.Play();
             }
         }
-      
-    }
-
-    void playMusic()
-    {
-        _music = new Sound("music.ogg", false, true);
-        //_music.Play();
-    }
-
-
-
-    private float Map(float value, float fromMin, float fromMax, float toMin, float toMax)
-    {
-        return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
     }
 }

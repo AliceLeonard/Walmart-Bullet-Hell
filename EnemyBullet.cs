@@ -36,7 +36,6 @@ namespace GXPEngine
             }
         }
 
-
         public virtual void OnCollision(GameObject other)
         {
             if (other is Player)

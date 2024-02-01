@@ -19,8 +19,6 @@ public class Enemy : AnimationSprite
     private PlayableArea playableArea;
     private EnemySpawner spawner;
 
-
-
     public Enemy(float x, float y, int enemyHealth, int enemyShootTime, PlayableArea playableArea) : base("enemy.png", 1, 8)
     {
         SetOrigin(width / 2, height / 2);
@@ -61,11 +59,9 @@ public class Enemy : AnimationSprite
             LateRemove();
         }
         else if (y < playableTop || y > playableBottom)
-
         {
             LateRemove();
         }
-
     }
 
     public virtual void enemyMove()
@@ -99,7 +95,6 @@ public class Enemy : AnimationSprite
 
     public virtual void enemyShootTimeUpdate()
     {
-     
             enemyShootTimer++;
 
         if (enemyShootTimer == enemyShootTime)

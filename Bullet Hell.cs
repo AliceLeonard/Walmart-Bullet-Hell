@@ -26,6 +26,10 @@ public class MyGame : Game
     Button exitButton;
 
     Sound attack;
+    Sound _music;
+    Sound bomb;
+
+    bool musicPlayed = false;
 
     enum GameState
     {
@@ -73,6 +77,10 @@ public class MyGame : Game
 
     void RemoveMainMenu()
     {
+        if (musicPlayed == false)
+        {
+            playMusic();
+        }
         RemoveChild(startButton);
         RemoveChild(exitButton);
     }
@@ -82,7 +90,7 @@ public class MyGame : Game
 
         background = new EasyDraw(width, height);
         AddChild(background);
-        background.Fill(0, 0, 0); // Black background
+        background.Fill(0, 0, 0);
 
         playableArea = new PlayableArea(playableWidth, playableHeight, "Background.png");
         SetXY((width - playableWidth) / 10, (height - playableHeight) / 2);
@@ -99,10 +107,6 @@ public class MyGame : Game
 
         gameState = GameState.Playing;
         gameStart = true;
-
-        LateAddChild(new RestartMenu(this));
-
-        // Other initialization code as needed
     }
 
     void ExitButton_OnButtonClick()
@@ -114,14 +118,13 @@ public class MyGame : Game
     {
         if (gameState == GameState.Playing)
         {
-            // Update and draw other game elements
+            //update and draw HUD
             touhouHUD.UpdateHUD();
             touhouHUD.UpdateHealthBar(player.playerHealth);
-            touhouHUD.UpdatePlayerBomb(touhouHUD.playerBombs);
-            Shoot();
+            touhouHUD.UpdatePlayerBomb(touhouHUD.playerBombs);     
             touhouHUD.SetPlayerHealth(player.playerHealth);
-            CheckBossWin(); // Add this line
-            WinGameCheck();
+
+            Shoot();
 
             if (player.playerAlive == false)
             {
@@ -160,9 +163,8 @@ public class MyGame : Game
 
         if (Input.GetMouseButtonUp(1) && touhouHUD.playerBombs > 0)
         {
-            //PlayerBomb bomb = new PlayerBomb(bulletSpawnX, bulletSpawnY, playableArea);
-            //AddChild(bomb);
-            Console.WriteLine("BOMB");
+            bomb = new Sound("bomb.wav", false, false);
+            bomb.Play();
             touhouHUD.UseBomb();
             lateRemoveAllEnemies(this);
         }
@@ -193,6 +195,7 @@ public class MyGame : Game
     void playAttack()
     {
         attack = new Sound("attack.wav", false, true);
+        attack.Play();
     }
 
     void ResetGame()
@@ -209,43 +212,16 @@ public class MyGame : Game
         exitButton.SetXY(width / 2, height / 2 + 150);
         exitButton.OnButtonClick += ExitButton_OnButtonClick;
         AddChild(exitButton);
-
     }
-
-
-    void CheckBossWin()
+    void playMusic()
     {
-        // If the boss is not instantiated, create an instance for the check
-        if (boss == null)
-        {
-            boss = new Boss(x, y, 30, playableArea);
-        }
+        _music = new Sound("music.ogg", true, true);
+        _music.Play();
+        musicPlayed = true;
     }
 
 
-    void WinGameCheck()
-    {
-        if (boss.gameWin)
-        {
-            Console.WriteLine("WINNNNNNNNNNNNNNNNNNNN");
 
-            foreach (var child in GetChildren())
-            {
-                RemoveChild(child);
-            }
 
-            x = 0; y = 0;
-            gameState = GameState.MainMenu;
-
-            winScreen = new EasyDraw(width, height);
-            AddChild(winScreen);
-            winScreen.Text("VICTORY!:", game.width / 2, game.height / 10); // Display a "B" for bombs
-
-            exitButton = new Button("Exit", 100, 50);
-            exitButton.SetXY(width / 2, height / 2 + 150);
-            exitButton.OnButtonClick += ExitButton_OnButtonClick;
-            AddChild(exitButton);
-        }
-    }
 }
 

@@ -1,26 +1,17 @@
-﻿﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GXPEngine
+﻿namespace GXPEngine
 {
-    using GXPEngine;
     using System;
 
     public class Boss : AnimationSprite
     {
         private int health;
-        private int currentStage;
         private PlayableArea playableArea;
-        private bool isTransitioning;
-        public bool gameWin = false;
+
 
         public int bossStage = 1;
         float moveSpeed;
 
-        int bossHealth = 30;
+        int bossHealth = 100;
         bool bossMove = true;
 
         private Random random = new Random();
@@ -29,17 +20,13 @@ namespace GXPEngine
         float storedTargetY;
         float moveTimer = 3000;  // Set the initial timer value
 
-        int previousRandomValue = 0; // Set to a value outside the range [1, 5]
+        int previousRandomValue = 0;
         int previousRandomXValue = 0;
 
         int bossShootTime;
         private int timer = 0;
-        private int shootTime = 30;
+        private int shootTime = 50;
         private int waveTime = 10;
-
-
-
-
 
         public Boss(float x, float y, int health, PlayableArea playableArea)
             : base("boss.png", 1, 9)
@@ -49,39 +36,22 @@ namespace GXPEngine
             this.y = y;
             this.health = health;
             this.playableArea = playableArea;
-            this.currentStage = 1;
-            this.isTransitioning = false;
         }
 
         public void Update()
         {
-            Console.WriteLine(bossStage);
-
-            if (!isTransitioning)
-
-            {
-                MoveToNextStage();
-                PerformBossActions();
-                bossHealthUpdate();
-            }
+            MoveToNextStage();
+            PerformBossActions();
+            bossHealthUpdate();
 
             if (bossStage >= 4)
             {
-                gameWin = true;
-                // Set gameWin before destroying the boss
-                //LateDestroy();
+                Environment.Exit(0);
             }
         }
 
-    
-
         private void MoveToNextStage()
         {
-            // Implement movement logic to transition between stages
-            // Example: Move towards a specific point in the playable area for each stage
-            // You can use a switch statement or another logic to define movement for each stage
-            // For simplicity, let's assume the boss moves to a fixed point for each stage
-
             if (bossMove == true)
             {
                 if (locationPicking == true)
@@ -143,19 +113,6 @@ namespace GXPEngine
                     break;
             }
         }
-
-        /*  private void FireBullets()
-          {
-              // Implement bullet firing logic
-              // Example: Create and spawn bullets
-              float bulletSpawnX = x; // Adjust as needed
-              float bulletSpawnY = y; // Adjust as needed
-
-              // Create a bullet instance and add it to the game
-              Bullet bullet = new Bullet(bulletSpawnX, bulletSpawnY, playableArea);
-              game.AddChild(bullet);
-          }*/
-
         private float GetTargetXForCurrentStage()
         {
             switch (bossStage)
@@ -176,10 +133,6 @@ namespace GXPEngine
                     previousRandomXValue = randomXValue;
 
                     return playableArea.Width / 6 * randomXValue;
-
-
-
-
                 default: return playableArea.Width - 100;
             }
         }
@@ -192,7 +145,6 @@ namespace GXPEngine
                     return playableArea.Height / 2;
                 case 2:
                     int randomValue;
-
                     do
                     {
                         randomValue = random.Next(1, 5); // Change upper bound to 6
@@ -255,8 +207,6 @@ namespace GXPEngine
 
         private Player FindPlayer()
         {
-            // Implement logic to find the player in the game's children
-            // Example: Iterate through game's children and find the first instance of Player
             foreach (var child in game.GetChildren())
             {
                 if (child is Player)
@@ -280,11 +230,9 @@ namespace GXPEngine
             if (bossHealth <= 0)
             {
                 bossStage++;
-                bossHealth = 30;
+                bossHealth = 100;
                 bossMove = true;
             }
-
-           
         }
 
         private void CountdownTimer()
@@ -298,10 +246,9 @@ namespace GXPEngine
 
                     if (moveTimer <= 0)
                     {
-                        // Timer has reached 0, switch bossMove to true
                         bossMove = true;
                         locationPicking = true;
-                        moveTimer = 3000;  // Set the initial timer value
+                        moveTimer = 3000; //move in seconds/1000
                     }
                 }
             }
@@ -313,8 +260,8 @@ namespace GXPEngine
             float delta_angle = Mathf.PI * 2.0f / (nr + 1);
             for (int i = 0; i <= nr; i++)
             {
-                float enemyBulletSpawnX = x + radius * Mathf.Cos(angle); // Spawn at the right side of the screen
-                float enemyBulletSpawnY = y + radius * Mathf.Sin(angle); // Adjust as needed
+                float enemyBulletSpawnX = x + radius * Mathf.Cos(angle);
+                float enemyBulletSpawnY = y + radius * Mathf.Sin(angle);
                 if (IsInsidePlayableArea(enemyBulletSpawnX, enemyBulletSpawnY))
                 {
                     EnemyBullet enemybullet = new EnemyBullet(enemyBulletSpawnX, enemyBulletSpawnY, playableArea, angle);
@@ -325,7 +272,7 @@ namespace GXPEngine
         }
         void generateSpiralOfBullets(int nr, float radius)
         {
-           
+
             float angle = 0;
             float delta_angle = Mathf.PI * 2.0f / (nr + 1);
             float length = radius / nr;
@@ -351,16 +298,13 @@ namespace GXPEngine
             }
         }
 
-
         bool IsInsidePlayableArea(float x, float y)
         {
-            // Replace these values with the actual boundaries of the playable area
             float playableLeft = playableArea.x;
             float playableRight = playableArea.x + playableArea.Width;
             float playableTop = playableArea.y;
             float playableBottom = playableArea.y + playableArea.Height;
 
-            // Check if the position is inside the playable area
             return x >= playableLeft && x <= playableRight &&
                    y >= playableTop && y <= playableBottom;
         }

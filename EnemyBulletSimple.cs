@@ -15,9 +15,6 @@ namespace GXPEngine
             this.x = x;
             this.y = y;
             this.playableArea = playableArea;
-
-
-
         }
 
         public override void Update()
@@ -28,15 +25,11 @@ namespace GXPEngine
             {
                 LateRemove();
             }
-
         }
 
         public override void OnCollision(GameObject other)
         {
             base.OnCollision(other); // Call the base class's OnCollision method
-
-          
         }
-
     }
 }

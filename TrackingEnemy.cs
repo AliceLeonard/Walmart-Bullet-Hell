@@ -10,10 +10,6 @@ namespace GXPEngine
     {
         private PlayableArea playableArea;
 
-        private int speed = 0;
-        private int timer = 0;
-        private int shootTime;
-        private int waveTime = 10;
         private int tEnemyShootTime;
         private int tEnemyShootTimer;
 
@@ -30,7 +26,6 @@ namespace GXPEngine
         {
             enemyShoot();
             base.Update();
-            
         }
         public override void OnCollision(GameObject other)
         {
@@ -42,8 +37,6 @@ namespace GXPEngine
 
         private Player FindPlayer()
         {
-            // Implement logic to find the player in the game's children
-            // Example: Iterate through game's children and find the first instance of Player
             foreach (var child in game.GetChildren())
             {
                 if (child is Player)
@@ -57,13 +50,11 @@ namespace GXPEngine
 
         public override void enemyShootTimeUpdate()
         {
-
             tEnemyShootTimer++;            
             if (tEnemyShootTimer == tEnemyShootTime)
             {
                 enemyShoot();
                 tEnemyShootTimer = 0; // Set a fixed cooldown time
-                                    //generateSpiralOfBullets(12, 50);
             }
         }
 
